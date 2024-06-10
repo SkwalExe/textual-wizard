@@ -1,0 +1,15 @@
+# Default formatting rules are pretty good
+line-length = 120
+[lint]
+# Read more here https://beta.ruff.rs/docs/rules/
+# By default, Ruff enables Flake8's E and F rules
+# Pyflakes - F, pycodestyle - E, W
+# flake8-builtins - A
+# flake8-annotations - ANN
+# flake8-simplify - SIM
+# Pylint - PLC, PLE, PLW
+# isort - I
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'SIM', 'ANN']
+ignore = [
+    'ANN101'
+]
