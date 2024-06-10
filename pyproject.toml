@@ -1,0 +1,33 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "textual_wizard"
+version = "0.1.0"
+description = "Easily ask for input with a beautiful user interface, within the terminal."
+authors = [{name = "Leopold Koprivnik", email = "skwal@etik.com"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.urls]
+Home = "https://github.com/SkwalExe/textual-wizard"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "ruff>=0.4.7",
+    "pyright>=1.1.365",
+]
+
+[tool.pdm.scripts]
+format = "ruff format"
+format-check = "ruff format --check"
+lint = "ruff check --fix --show-fixes"
+lint-check = "ruff check"
+check-types = "pyright"
