@@ -1,0 +1,38 @@
+Screen {
+    align: center middle;
+}
+
+Container { 
+    margin: 0 2;
+    max-width: 60;
+    height: auto;
+    padding: 1 4;
+    border: solid $primary-background-lighten-3;
+}
+
+.hidden { 
+    display: none;
+}
+
+#buttons { 
+    margin-top: 1;
+    height: auto;
+}
+
+Input, Select { 
+    border: round skyblue;
+    background: transparent;
+}
+
+.invalid {
+    border: round tomato;
+}
+
+#next-button, #back-button { 
+    width: 1fr;
+}
+
+#error-label { 
+    color: tomato;
+    max-width: 100%;
+}
