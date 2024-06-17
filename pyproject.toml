@@ -27,6 +27,7 @@ dev = [
     "ruff>=0.4.7",
     "pyright>=1.1.365",
     "textual-dev>=1.5.1",
+    "mkdocs-material>=9.5.27",
 ]
 
 [tool.pdm.scripts]
@@ -37,3 +38,5 @@ lint-check = "ruff check"
 check-types = "pyright"
 example = "textual run --dev example.py"
 console = "textual console -x EVENT -x SYSTEM"
+docs-serve = "mkdocs serve"
+docs-build = "mkdocs build"
