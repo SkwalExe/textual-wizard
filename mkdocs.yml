@@ -1,4 +1,42 @@
-site_name: Textual Wizard
+site_name: Documentation for Textual Wizard
+repo_url: https://github.com/SkwalExe/textual-wizard
 site_url: https://textual-wizard.skwal.net
+extra_css:
+  - stylesheets/theme.css
 theme:
   name: material
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/book-open-page-variant
+  palette:
+    scheme: dracula
+    primary: deep purple
+    accent: deep purple
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.path
+    - toc.follow
+copyright: Copyright &copy; 2024 - present Léopold Koprivnik
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - tables
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences 
+  - pymdownx.keys
+  - pymdownx.tabbed:
+      alternate_style: true
+extra:
+  generator: false
