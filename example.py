@@ -8,7 +8,7 @@ from textual_wizard.inputs import Integer, Number, Select, Text
 ANIMALS = ["Cats 😺", "Dogs 🐶", "Monkeys 🐵", "Mice 🐭", "Hamsters 🐹", "Bunnies 🐰", "Other"]
 
 MY_QUESTIONS = [
-    Text("name", "What is your name? Blank not allowed", placeholder="John Doe", allow_blank=False),
+    Text("name", "What is your name?", placeholder="John Doe", allow_blank=False),
     Select(
         "animal",
         "What is your favourite animal?",
