@@ -25,7 +25,7 @@ You can install textual-wizard easily with pip to use it in your projects:
 pip install textual-wizard
 ```
 
->  [!CAUTION] Minimum python version required
+> [!CAUTION]
 > Textual Wizard requires at least Python 3.12.
 > You will not be able to install the library with pip if this requirement is not met.
 
