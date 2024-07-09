@@ -30,13 +30,16 @@ dev = [
     "mkdocs-material>=9.5.27",
 ]
 
+[project.scripts]
+textual-wizard = "textual_wizard.__main__:main"
+
 [tool.pdm.scripts]
 format = "ruff format"
 format-check = "ruff format --check"
 lint = "ruff check --fix --show-fixes"
 lint-check = "ruff check"
 check-types = "pyright"
-example = "textual run --dev example.py"
+example = "textual run --dev -c textual-wizard"
 console = "textual console -x EVENT -x SYSTEM"
 docs-serve = "mkdocs serve"
 docs-build = "mkdocs build"
