@@ -21,6 +21,7 @@ theme:
     - navigation.tracking
     - navigation.tabs
     - navigation.path
+    - navigation.footer
     - toc.follow
 copyright: Copyright &copy; 2024 - present Léopold Koprivnik
 markdown_extensions:
