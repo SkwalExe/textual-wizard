@@ -2,6 +2,7 @@ site_name: Documentation for Textual Wizard
 repo_url: https://github.com/SkwalExe/textual-wizard
 site_url: https://textual-wizard.skwal.net
 extra_css:
+  - stylesheets/mkdocstrings.css
   - stylesheets/theme.css
 theme:
   name: material
@@ -16,6 +17,7 @@ theme:
     text: Roboto
     code: Roboto Mono
   features:
+    - navigation.expand
     - navigation.instant
     - navigation.instant.progress
     - navigation.tracking
@@ -43,5 +45,40 @@ markdown_extensions:
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.tabbed:
       alternate_style: true
+watch:
+  - src/textual_wizard
+  - mkdocs.yml
+plugins:
+  mkdocstrings:
+    handlers:
+      python:
+        options:
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
+          inherited_members: true
+
+          separate_signature: true
+          show_if_no_dicstring: true
+          docstring_options:
+            ignore_init_summary: true
+
+          show_source: false
+          filters:
+            - "!^as_widget$"
+          show_signature_annotations: true
+          merge_init_into_class: true
+          show_root_heading: true
 extra:
   generator: false
+nav:
+  - "index.md"
+  - Getting Started:
+    - "getting-started/index.md"
+    - "getting-started/basic-app.md"
+  - Reference:
+      - "reference/wizard.md"
+      - Inputs:
+        - "reference/text.md"
+        - "reference/integer.md"
+        - "reference/number.md"
+        - "reference/select.md"

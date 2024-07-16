@@ -28,10 +28,10 @@ dev = [
     "pyright>=1.1.365",
     "textual-dev>=1.5.1",
     "mkdocs-material>=9.5.27",
+    "mkdocstrings-python>=1.10.5",
+    # Black is used only for signature formatting with mkdocstrings
+    "black>=24.4.2",
 ]
-
-[project.scripts]
-textual-wizard = "textual_wizard.__main__:main"
 
 [tool.pdm.scripts]
 format = "ruff format"
@@ -43,3 +43,7 @@ example = "textual run --dev -c textual-wizard"
 console = "textual console -x EVENT -x SYSTEM"
 docs-serve = "mkdocs serve"
 docs-build = "mkdocs build"
+
+[project.scripts]
+textual-wizard = "textual_wizard.__main__:main"
+

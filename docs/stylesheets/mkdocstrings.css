@@ -1,0 +1,42 @@
+:root {
+  --doc-symbol-parameter-fg-color: #df50af !important;
+  --doc-symbol-attribute-fg-color: #0079ff !important;
+  --doc-symbol-function-fg-color: #00dfa2 !important;
+  --doc-symbol-method-fg-color: #00dfa2 !important;
+  --doc-symbol-class-fg-color: #d1b619 !important;
+  --doc-symbol-module-fg-color: #ff0060 !important;
+
+  --doc-symbol-parameter-bg-color: #df50af1a !important;
+  --doc-symbol-attribute-bg-color: #0079ff1a !important;
+  --doc-symbol-function-bg-color: #00dfa21a !important;
+  --doc-symbol-method-bg-color: #00dfa21a !important;
+  --doc-symbol-class-bg-color: #d1b6191a !important;
+  --doc-symbol-module-bg-color: #ff00601a !important;
+}
+
+
+code.doc-symbol-attribute {
+  color: var(--doc-symbol-attribute-fg-color) !important;
+  background-color: var(--doc-symbol-attribute-bg-color) !important;
+}
+
+code.doc-symbol-function {
+  color: var(--doc-symbol-function-fg-color) !important;
+  background-color: var(--doc-symbol-function-bg-color) !important;
+}
+
+code.doc-symbol-method {
+  color: var(--doc-symbol-method-fg-color) !important;
+  background-color: var(--doc-symbol-method-bg-color) !important;
+}
+
+code.doc-symbol-class {
+  color: var(--doc-symbol-class-fg-color) !important;
+  background-color: var(--doc-symbol-class-bg-color) !important;
+}
+
+code.doc-symbol-module {
+  color: var(--doc-symbol-module-fg-color) !important;
+  background-color: var(--doc-symbol-module-bg-color) !important;
+}
+
