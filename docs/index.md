@@ -13,7 +13,7 @@ hide:
 
 👋 Welcome to the Textual Wizard documentation!
 
-[Get Started](/getting-started){ .md-button .md-button--primary }
+[Get Started](getting-started/index.md){ .md-button .md-button--primary }
 
 ## What is Textual Wizard?
 
@@ -45,4 +45,4 @@ Textual Wizard is a straightforward library that enables developers to create en
 
 ## Demonstration
 
-![Demo gif](/demo.gif)
+![Demo gif](demo.gif)

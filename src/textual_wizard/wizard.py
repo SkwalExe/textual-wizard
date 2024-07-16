@@ -189,12 +189,26 @@ class WizardApp(App[Answers]):
 # This class will add a layer of abstraction
 # to the textual application
 class Wizard:
+    """
+    Use this class to interface with the library. It allows you to create your wizard and to run it.
+    """
+
     questions: Sequence[InputType]
     wiz_app: WizardApp = WizardApp()
 
     def __init__(
         self, questions: Sequence[InputType], title: str = "Wizard", sub_title: Optional[str] = None
     ) -> None:
+        """
+        Creates an instance of this class.
+
+        Args:
+            questions: A list of inputs to show to the user at each step of the wizard.
+            title: The name of your wizard.
+                Should be something like the name of your application,
+                it will be displayed to the user.
+            sub_title: A more specific title, for example describing the goal of the wizard.
+        """
         self.questions = questions
         self.wiz_app.title = title
         if sub_title is not None:

@@ -35,4 +35,4 @@ To verify the installation and explore the capabilities of Textual Wizard, run t
 textual-wizard
 ```
 
-![Example application](/demo.gif)
+![Example application](../demo.gif)
