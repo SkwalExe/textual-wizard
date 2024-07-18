@@ -2,32 +2,50 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.pretty import pprint
 from rich.text import Text as RichText
+from textual.validation import Number as Nb
 
 from textual_wizard import Wizard
-from textual_wizard.inputs import Integer, Number, Select, Text
+from textual_wizard.inputs import URL, Email, Integer, Number, Select, Text
 
 
 def main() -> None:
     ANIMALS = ["Cats 😺", "Dogs 🐶", "Monkeys 🐵", "Mice 🐭", "Hamsters 🐹", "Bunnies 🐰", "Other"]
 
     MY_QUESTIONS = [
-        Text("name", "What is your name?", placeholder="John Doe", allow_blank=False),
+        Text(
+            "my_text_field",
+            "This is a text input field!",
+            placeholder="And this is a placeholder!",
+        ),
         Select(
             "animal",
             "What is your favourite animal?",
             options=[(option, option) for option in ANIMALS],
         ),
-        Integer("pet_count", "How many pets do you have?"),
-        Text(
-            "email",
-            "Your email address (optional)",
-            placeholder="me@example.com",
-            initial_value="me@example.com",
+        Integer(
+            "my_integer",
+            "This is an integer input field!",
+            placeholder="Pl4c3h0ld3r",
         ),
-        Number("height", "How tall are you (in meters)", placeholder="1.70"),
+        URL(
+            "url",
+            "URL input field!",
+            placeholder="https://skwal.net",
+        ),
+        Email(
+            "email",
+            "Email address input field!",
+            placeholder="me@domain.com",
+        ),
+        Number(
+            "number",
+            "This is a number field, with validators!",
+            placeholder="This is a placeholder.",
+            validators=[Nb(5, 10)],
+        ),
     ]
 
-    wiz = Wizard(MY_QUESTIONS, "MyApp", "Hello")
+    wiz = Wizard(MY_QUESTIONS, "MyApp", "Example Application")
     answers = wiz.run()
 
     console = Console()

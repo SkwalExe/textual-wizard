@@ -4,6 +4,9 @@ site_url: https://textual-wizard.skwal.net
 extra_css:
   - stylesheets/mkdocstrings.css
   - stylesheets/theme.css
+  - https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/styles.css
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/index.js
 theme:
   name: material
   icon:
@@ -83,3 +86,5 @@ nav:
         - "reference/integer.md"
         - "reference/number.md"
         - "reference/select.md"
+        - "reference/email.md"
+        - "reference/url.md"

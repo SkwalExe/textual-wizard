@@ -1,3 +1,12 @@
+# v0.3.0 - 2024-07-13
+
+### Improved
+- Improved example application
+
+### Added
+- Added URL input field
+- Added Email input field
+
 # v0.2.0 - 2024-07-13
 
 ### Improved

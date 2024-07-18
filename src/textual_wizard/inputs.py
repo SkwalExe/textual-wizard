@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Generic, Optional, TypeVar
 
-from textual.validation import Length, Validator
+from textual.validation import URL as URL_
+from textual.validation import Length, Regex, Validator
 from textual.widgets import Input
 from textual.widgets import Select as _Select
 from textual.widgets._input import InputType as InputWidgetType
+
+EMAIL_REGEX = r"^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$"  # noqa: E501
 
 
 # Base class for all input types
@@ -93,6 +96,75 @@ class Text(BaseText[str]):
 
     def parse_result(self, value: str) -> str:
         return value
+
+
+class Email(Text):
+    """
+    The email input field behaves like a normal text input field,
+    but simply adds an email validator.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        label: str,
+        *,
+        placeholder: Optional[str] = None,
+        allow_blank: bool = True,
+    ) -> None:
+        """
+        Initializes an instance of this class
+
+        Args:
+            name: The input identifier, used as key in the returned `answers` dict.
+            label: The title of the input, displayed to the user.
+            placeholder: Placeholder for the text field.
+            allow_blank: Whether or not the text field is considered valid when is it empty.
+        """
+        super().__init__(
+            name,
+            label,
+            placeholder=placeholder,
+            allow_blank=allow_blank,
+            validators=[
+                Regex(
+                    EMAIL_REGEX,
+                    failure_description="Must be a valid email address.",
+                )
+            ],
+        )
+
+
+class URL(Text):
+    """
+    The URL input field behaves like a normal text input field,
+    but simply adds an URL validator.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        label: str,
+        *,
+        placeholder: Optional[str] = None,
+        allow_blank: bool = True,
+    ) -> None:
+        """
+        Initializes an instance of this class
+
+        Args:
+            name: The input identifier, used as key in the returned `answers` dict.
+            label: The title of the input, displayed to the user.
+            placeholder: Placeholder for the text field.
+            allow_blank: Whether or not the text field is considered valid when is it empty.
+        """
+        super().__init__(
+            name,
+            label,
+            validators=[URL_()],
+            placeholder=placeholder,
+            allow_blank=allow_blank,
+        )
 
 
 class Integer(BaseText[int]):
