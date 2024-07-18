@@ -2,11 +2,8 @@ name: Publish to PyPI
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-        - 'main'
-    paths:
-        - 'pyproject.toml'
+  release:
+    types: [published]
 
 jobs:
   publish:

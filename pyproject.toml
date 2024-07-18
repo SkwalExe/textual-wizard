@@ -4,17 +4,21 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "textual-wizard"
-version = "0.1.0"
 description = "Easily ask for input with a beautiful user interface, within the terminal."
 authors = [{name = "Leopold Koprivnik", email = "skwal@etik.com"}]
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
     "textual>=0.66.0",
     "rich>=13.7.1",
 ]
+dynamic = ["version"]
+
+[tool.pdm.version]
+source = "file"
+path = "src/textual/__init__.py"
 
 [project.urls]
 Home = "https://github.com/SkwalExe/textual-wizard"
