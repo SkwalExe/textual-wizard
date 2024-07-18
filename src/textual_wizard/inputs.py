@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Generic, Optional, TypeVar
 
 from textual.validation import Length, Validator
 from textual.widgets import Input
@@ -20,8 +20,11 @@ class InputType(ABC):
     def as_widget(self) -> Input | _Select: ...
 
 
+FieldValueType = TypeVar("FieldValueType")
+
+
 # Base class for all input types using an `Input` widget
-class BaseText[T](InputType):
+class BaseText(InputType, Generic[FieldValueType]):
     validators: list[Validator]
     placeholder: str
     initial_value: str
@@ -78,7 +81,7 @@ class BaseText[T](InputType):
         return wid
 
     @abstractmethod
-    def parse_result(self, value: str) -> T: ...
+    def parse_result(self, value: str) -> FieldValueType: ...
 
 
 class Text(BaseText[str]):
@@ -116,26 +119,26 @@ class Number(BaseText[float]):
         return float(value)
 
 
-type Option[T] = tuple[str, T]
-type OptionList[T] = list[Option[T]]
+# Option[T]: tuple[str, T]
+# OptionList[T]: list[Option[T]]
 
 
-class Select[T](InputType):
+class Select(InputType, Generic[FieldValueType]):
     """
     Allows the user to select a value within a predefined list of options.
     """
 
-    options: OptionList[T]
-    default_value: T
-    wid: _Select[T]
+    options: list[tuple[str, FieldValueType]]
+    default_value: FieldValueType
+    wid: _Select[FieldValueType]
 
     def __init__(
         self,
         name: str,
         label: str,
         *,
-        options: OptionList[T],
-        default_value: Optional[T] = None,
+        options: list[tuple[str, FieldValueType]],
+        default_value: Optional[FieldValueType] = None,
     ) -> None:
         """
         Initializes an instance of this class.
@@ -157,7 +160,7 @@ class Select[T](InputType):
         self.default_value = default_value
 
     def as_widget(self) -> _Select:
-        wid = _Select[T](
+        wid = _Select[FieldValueType](
             id=self.name,
             options=self.options,
             allow_blank=False,

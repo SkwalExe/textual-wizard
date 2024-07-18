@@ -12,15 +12,12 @@ from textual.widgets._select import NoSelection
 from textual_wizard.exceptions import QuestionNameNotUnique
 from textual_wizard.inputs import BaseText, InputType, Select
 
-type Answers = dict[str, Any]
-type InputWidgetType = Input | _Select
 
-
-class WizardApp(App[Answers]):
+class WizardApp(App[dict[str, Any]]):
     questions: Sequence[InputType]
     """Questions supplied by the user"""
 
-    answers: Answers = dict()
+    answers: dict[str, Any] = dict()
     """Answers to return when the wizard is completed"""
 
     CSS_PATH = "wizard.tcss"
@@ -85,11 +82,11 @@ class WizardApp(App[Answers]):
     question_index: int = 0
     """Index of the current question within self.questions"""
 
-    input_widgets: list[InputWidgetType] = list()
+    input_widgets: list[Input | _Select] = list()
     """List of all the input widgets, matching the index of items in self.questions"""
 
     @property
-    def active_input(self) -> InputWidgetType:
+    def active_input(self) -> Input | _Select:
         return self.input_widgets[self.question_index]
 
     @property
@@ -214,7 +211,7 @@ class Wizard:
         if sub_title is not None:
             self.wiz_app.sub_title = sub_title
 
-    def run(self) -> Answers | None:
+    def run(self) -> dict[str, Any] | None:
         """Run the app and return answers. Return None if the wizard was cancelled."""
         self.wiz_app.set_questions(self.questions)
         return self.wiz_app.run()

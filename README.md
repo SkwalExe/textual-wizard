@@ -26,7 +26,7 @@ pip install textual-wizard
 ```
 
 > [!CAUTION]
-> Textual Wizard requires at least Python 3.12.
+> Textual Wizard requires at least Python 3.9.
 > You will not be able to install the library with pip if this requirement is not met.
 
 # Demonstration
