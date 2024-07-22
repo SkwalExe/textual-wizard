@@ -16,7 +16,7 @@ class WizardApp(App[dict[str, Any]]):
     questions: Sequence[InputType]
     """Questions supplied by the user"""
 
-    answers: dict[str, Any] = dict()
+    answers: dict[str, Any]
     """Answers to return when the wizard is completed"""
 
     CSS_PATH = "wizard.tcss"
@@ -68,9 +68,9 @@ class WizardApp(App[dict[str, Any]]):
         if vr.valid:
             self.set_error(None)
             return True
-        else:
-            self.set_error(vr.failure_reason)
-            return False
+
+        self.set_error(vr.failure_reason)
+        return False
 
     def validate_input(self) -> bool:
         """Triggers a validation for the current input"""
@@ -89,13 +89,13 @@ class WizardApp(App[dict[str, Any]]):
         return True
 
     # -------------------- Switching between questions
-    back_button: Button = Button("Back", id="back-button", variant="warning", disabled=True)
-    next_button: Button = Button("Next", id="next-button", variant="primary")
+    back_button: Button
+    next_button: Button
 
     question_index: int = 0
     """Index of the current question within self.questions"""
 
-    input_widgets: list[Input | _Select] = list()
+    input_widgets: list[Input | _Select]
     """List of all the input widgets, matching the index of items in self.questions"""
 
     @property
@@ -166,6 +166,13 @@ class WizardApp(App[dict[str, Any]]):
         self.questions = questions
 
     def compose(self) -> ComposeResult:
+        # We need to define class properties that are references here to
+        # avoid keeping previous objects when creating a new wizard.
+        self.answers = dict()
+        self.input_widgets = list()
+        self.back_button = Button("Back", id="back-button", variant="warning", disabled=True)
+        self.next_button = Button("Next", id="next-button", variant="primary")
+
         yield Header()
 
         with Container():
@@ -204,8 +211,11 @@ class Wizard:
     """
 
     questions: Sequence[InputType]
-    wiz_app: WizardApp = WizardApp()
+    wiz_app: WizardApp
     disable_tui: bool
+
+    # True if the wizard was run at least once
+    finished: bool = False
 
     def __init__(
         self,
@@ -226,6 +236,8 @@ class Wizard:
             sub_title: A more specific title, for example describing the goal of the wizard.
             disable_tui: Disable the Textual User Interface and use Inquirer instead.
         """
+        self.wiz_app = WizardApp()
+
         self.questions = questions
         self.wiz_app.title = title
         self.disable_tui = disable_tui
@@ -234,6 +246,14 @@ class Wizard:
 
     def run(self) -> dict[str, Any] | None:
         """Run the app and return answers. Return None if the wizard was cancelled."""
+
+        if self.finished:
+            raise Exception(
+                "You can only cann Wizard.run() one time. "
+                "If you want to run another wizard, "
+                "create a new instance of textual_wizard.Wizard()."
+            )
+        self.finished = True
 
         # If we run with the TUI
         if not self.disable_tui:
