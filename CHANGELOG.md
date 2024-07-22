@@ -1,4 +1,9 @@
-# v0.4.0 - 2024-07-22 - Unreleased
+# v0.4.1 - 2024-07-22
+
+### Fixed
+- Fixed bug where creating multiple wizards would break the app. 
+
+# v0.4.0 - 2024-07-22
 
 ### Added
 - Added `disable_tui` option to use Inquirer instead of the Terminal User Interface.

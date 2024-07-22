@@ -60,6 +60,7 @@ plugins:
           show_symbol_type_heading: true
           show_symbol_type_toc: true
           inherited_members: true
+          docstring_section_style: spacy
 
           separate_signature: true
           show_if_no_dicstring: true

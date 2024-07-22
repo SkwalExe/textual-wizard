@@ -23,6 +23,7 @@ def main(disable_tui: bool) -> None:
             "my_text_field",
             "This is a text input field!",
             placeholder="And this is a placeholder!",
+            allow_blank=True,
         ),
         Select(
             "animal",
@@ -33,22 +34,16 @@ def main(disable_tui: bool) -> None:
             "my_integer",
             "This is an integer input field!",
             placeholder="Pl4c3h0ld3r",
+            allow_blank=True,
         ),
-        URL(
-            "url",
-            "URL input field!",
-            placeholder="https://skwal.net",
-        ),
-        Email(
-            "email",
-            "Email address input field!",
-            placeholder="me@domain.com",
-        ),
+        URL("url", "URL input field!", placeholder="https://skwal.net", allow_blank=True),
+        Email("email", "Email address input field!", placeholder="me@domain.com", allow_blank=True),
         Number(
             "number",
             "This is a number field, with validators!",
             placeholder="This is a placeholder.",
             validators=[Nb(5, 10)],
+            allow_blank=True,
         ),
     ]
     answers: dict[str, Any] | None = dict()
