@@ -4,13 +4,12 @@ from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal
 from textual.reactive import reactive
-from textual.validation import ValidationResult
 from textual.widgets import Button, Header, Input, Label
 from textual.widgets import Select as _Select
 from textual.widgets._select import NoSelection
 
 from textual_wizard.exceptions import QuestionNameNotUnique
-from textual_wizard.inputs import BaseText, InputType, Select
+from textual_wizard.inputs import BaseText, InputType, Select, ValidationResult
 
 
 class WizardApp(App[dict[str, Any]]):
@@ -54,25 +53,39 @@ class WizardApp(App[dict[str, Any]]):
 
     def on_input_changed(self, message: Input.Changed) -> None:
         """Validate the input at every change"""
-        self.handle_validation_result(message.validation_result)
+        if not isinstance(self.selected_question, BaseText):
+            raise Exception(
+                "Input.Changed is fired if the current input is based on a text field."
+                "So we assume the selected question is of type BaseText."
+            )
 
-    def handle_validation_result(self, vr: ValidationResult | None) -> bool:
+        self.handle_validation_result(self.selected_question.is_value_accepted(message.value))
+
+    def handle_validation_result(self, vr: ValidationResult) -> bool:
         """Handles the result of every input validation"""
 
         # There is a better way to do that but the linter isnt happy
-        if vr is None or vr.is_valid:
+        if vr.valid:
             self.set_error(None)
             return True
         else:
-            self.set_error(vr.failure_descriptions[0])
+            self.set_error(vr.failure_reason)
             return False
 
     def validate_input(self) -> bool:
         """Triggers a validation for the current input"""
         wid = self.active_input
+
         if isinstance(wid, Input):
-            results = wid.validate(wid.value)
+            question = self.selected_question
+            if not isinstance(question, BaseText):
+                raise Exception(
+                    "We assume the current question is text based if the current"
+                    "widget is a textual Input."
+                )
+            results = question.is_value_accepted(wid.value)
             return self.handle_validation_result(results)
+        # If the current widget is not an Input, it must be a Select, so no validation required.
         return True
 
     # -------------------- Switching between questions
