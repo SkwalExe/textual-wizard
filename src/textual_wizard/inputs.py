@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, TypeVar
+from typing import Generic, Optional, TypeVar  # noqa: E999
 
+import inquirer as inq
 from textual.validation import URL as URL_
+from textual.validation import Integer as IntegerValidator
 from textual.validation import Length, Regex, Validator
+from textual.validation import Number as NumberValidator
 from textual.widgets import Input
 from textual.widgets import Select as _Select
 from textual.widgets._input import InputType as InputWidgetType
@@ -22,6 +25,9 @@ class InputType(ABC):
     @abstractmethod
     def as_widget(self) -> Input | _Select: ...
 
+    @abstractmethod
+    def inq_ask(self) -> ...: ...
+
 
 FieldValueType = TypeVar("FieldValueType")
 
@@ -33,6 +39,7 @@ class BaseText(InputType, Generic[FieldValueType]):
     initial_value: str
     input_type: InputWidgetType
     allow_blank: bool
+    additional_validators: Optional[list[Validator]] = None
 
     def __init__(
         self,
@@ -60,6 +67,8 @@ class BaseText(InputType, Generic[FieldValueType]):
 
         if validators is None:
             validators = list()
+        if self.additional_validators is not None:
+            validators += self.additional_validators
 
         self.placeholder = placeholder or initial_value or ""
 
@@ -83,6 +92,30 @@ class BaseText(InputType, Generic[FieldValueType]):
         wid.value = self.initial_value
         return wid
 
+    def inq_ask(self) -> FieldValueType:
+        """
+        Asks a question using Inquirer instead of the Textual User Interface.
+        """
+        while True:
+            answer = inq.text(self.label, default=self.initial_value)
+            if not self.is_value_accepted(answer):
+                continue
+            return self.parse_result(answer)
+
+    def is_value_accepted(self, value: str) -> bool:
+        """
+        Determine if a value satisfies all the validators configured on the question.
+
+        Args:
+            value: The value your want to check the validity of.
+        """
+        for validator in self.validators:
+            validation = validator.validate(value)
+            if not validation.is_valid:
+                print(validation.failure_descriptions[0])
+                return False
+        return True
+
     @abstractmethod
     def parse_result(self, value: str) -> FieldValueType: ...
 
@@ -104,35 +137,12 @@ class Email(Text):
     but simply adds an email validator.
     """
 
-    def __init__(
-        self,
-        name: str,
-        label: str,
-        *,
-        placeholder: Optional[str] = None,
-        allow_blank: bool = True,
-    ) -> None:
-        """
-        Initializes an instance of this class
-
-        Args:
-            name: The input identifier, used as key in the returned `answers` dict.
-            label: The title of the input, displayed to the user.
-            placeholder: Placeholder for the text field.
-            allow_blank: Whether or not the text field is considered valid when is it empty.
-        """
-        super().__init__(
-            name,
-            label,
-            placeholder=placeholder,
-            allow_blank=allow_blank,
-            validators=[
-                Regex(
-                    EMAIL_REGEX,
-                    failure_description="Must be a valid email address.",
-                )
-            ],
+    additional_validators = [
+        Regex(
+            EMAIL_REGEX,
+            failure_description="Must be a valid email address.",
         )
+    ]
 
 
 class URL(Text):
@@ -141,30 +151,7 @@ class URL(Text):
     but simply adds an URL validator.
     """
 
-    def __init__(
-        self,
-        name: str,
-        label: str,
-        *,
-        placeholder: Optional[str] = None,
-        allow_blank: bool = True,
-    ) -> None:
-        """
-        Initializes an instance of this class
-
-        Args:
-            name: The input identifier, used as key in the returned `answers` dict.
-            label: The title of the input, displayed to the user.
-            placeholder: Placeholder for the text field.
-            allow_blank: Whether or not the text field is considered valid when is it empty.
-        """
-        super().__init__(
-            name,
-            label,
-            validators=[URL_()],
-            placeholder=placeholder,
-            allow_blank=allow_blank,
-        )
+    additional_validators = [URL_()]
 
 
 class Integer(BaseText[int]):
@@ -174,6 +161,7 @@ class Integer(BaseText[int]):
     """
 
     input_type: InputWidgetType = "integer"
+    additional_validators = [IntegerValidator()]
 
     def parse_result(self, value: str) -> int:
         return int(value)
@@ -186,6 +174,7 @@ class Number(BaseText[float]):
     """
 
     input_type: InputWidgetType = "number"
+    additional_validators = [NumberValidator()]
 
     def parse_result(self, value: str) -> float:
         return float(value)
@@ -242,3 +231,7 @@ class Select(InputType, Generic[FieldValueType]):
         wid.border_title = self.label
 
         return wid
+
+    def inq_ask(self) -> FieldValueType:
+        # We assume inq.list_input will return a good type
+        return inq.list_input(self.label, choices=self.options, default=self.default_value)  # type: ignore

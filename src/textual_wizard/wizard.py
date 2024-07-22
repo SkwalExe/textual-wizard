@@ -192,9 +192,15 @@ class Wizard:
 
     questions: Sequence[InputType]
     wiz_app: WizardApp = WizardApp()
+    disable_tui: bool
 
     def __init__(
-        self, questions: Sequence[InputType], title: str = "Wizard", sub_title: Optional[str] = None
+        self,
+        questions: Sequence[InputType],
+        title: str = "Wizard",
+        sub_title: Optional[str] = None,
+        *,
+        disable_tui: bool = False,
     ) -> None:
         """
         Creates an instance of this class.
@@ -205,13 +211,25 @@ class Wizard:
                 Should be something like the name of your application,
                 it will be displayed to the user.
             sub_title: A more specific title, for example describing the goal of the wizard.
+            disable_tui: Disable the Textual User Interface and use Inquirer instead.
         """
         self.questions = questions
         self.wiz_app.title = title
+        self.disable_tui = disable_tui
         if sub_title is not None:
             self.wiz_app.sub_title = sub_title
 
     def run(self) -> dict[str, Any] | None:
         """Run the app and return answers. Return None if the wizard was cancelled."""
-        self.wiz_app.set_questions(self.questions)
-        return self.wiz_app.run()
+
+        # If we run with the TUI
+        if not self.disable_tui:
+            self.wiz_app.set_questions(self.questions)
+            return self.wiz_app.run()
+
+        # Without the TUI
+        answers = dict()
+        for question in self.questions:
+            answers[question.name] = question.inq_ask()
+
+        return answers
