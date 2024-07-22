@@ -26,7 +26,7 @@ class WizardApp(App[dict[str, Any]]):
     # - On input change
     # - When the next button is clicked
 
-    error_label: Label = Label("", id="error-label", classes="hidden")
+    error_label: Label
     """Widget showing invalid input errors below the input widget"""
     error_text: reactive[str | None] = reactive(None)
     """The description of the currently shown invalid input error"""
@@ -167,6 +167,7 @@ class WizardApp(App[dict[str, Any]]):
         self.input_widgets = list()
         self.back_button = Button("Back", id="back-button", variant="warning", disabled=True)
         self.next_button = Button("Next", id="next-button", variant="primary")
+        self.error_label = Label("", id="error-label", classes="hidden")
 
         yield Header()
 

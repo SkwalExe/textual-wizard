@@ -1,3 +1,8 @@
+# v0.4.3 - 2024-07-22
+
+### Fixed
+- Fixed error message not showing on invalid input.
+
 # v0.4.2 - 2024-07-22
 
 ### Fixed
