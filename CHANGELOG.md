@@ -1,3 +1,9 @@
+# v0.4.0 - 2024-07-22 - Unreleased
+
+### Added
+- Added `disable_tui` option to use Inquirer instead of the Terminal User Interface.
+- Added `is_value_accepted` method on question types.
+
 # v0.3.0 - 2024-07-13
 
 ### Improved

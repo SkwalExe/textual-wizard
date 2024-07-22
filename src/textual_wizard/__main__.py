@@ -1,3 +1,6 @@
+from typing import Any
+
+from click_extra import extra_command, option
 from rich.console import Console
 from rich.panel import Panel
 from rich.pretty import pprint
@@ -8,7 +11,11 @@ from textual_wizard import Wizard
 from textual_wizard.inputs import URL, Email, Integer, Number, Select, Text
 
 
-def main() -> None:
+@extra_command(params=[])
+@option(
+    "-t", "--disable-tui", is_flag=True, help="Disable the Textual TUI and use Inquirer instead."
+)
+def main(disable_tui: bool) -> None:
     ANIMALS = ["Cats 😺", "Dogs 🐶", "Monkeys 🐵", "Mice 🐭", "Hamsters 🐹", "Bunnies 🐰", "Other"]
 
     MY_QUESTIONS = [
@@ -44,15 +51,11 @@ def main() -> None:
             validators=[Nb(5, 10)],
         ),
     ]
-
-    wiz = Wizard(MY_QUESTIONS, "MyApp", "Example Application")
+    answers: dict[str, Any] | None = dict()
+    wiz = Wizard(MY_QUESTIONS, "MyApp", "Example Application", disable_tui=disable_tui)
     answers = wiz.run()
 
     console = Console()
     console.print(Panel(RichText.assemble("Result", justify="center", style="bold")))
 
     pprint(answers, expand_all=True)
-
-
-if __name__ == "__main__":
-    main()
