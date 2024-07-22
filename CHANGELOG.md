@@ -1,3 +1,8 @@
+# v0.4.2 - 2024-07-22
+
+### Fixed
+- Fixed error making app crash.
+
 # v0.4.1 - 2024-07-22
 
 ### Fixed

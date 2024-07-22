@@ -53,13 +53,8 @@ class WizardApp(App[dict[str, Any]]):
 
     def on_input_changed(self, message: Input.Changed) -> None:
         """Validate the input at every change"""
-        if not isinstance(self.selected_question, BaseText):
-            raise Exception(
-                "Input.Changed is fired if the current input is based on a text field."
-                "So we assume the selected question is of type BaseText."
-            )
-
-        self.handle_validation_result(self.selected_question.is_value_accepted(message.value))
+        if isinstance(self.selected_question, BaseText):
+            self.handle_validation_result(self.selected_question.is_value_accepted(message.value))
 
     def handle_validation_result(self, vr: ValidationResult) -> bool:
         """Handles the result of every input validation"""
