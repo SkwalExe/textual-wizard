@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, TypeVar  # noqa: E999
+from typing import Generic, Optional, TypeVar
 
 import inquirer as inq
 from textual.validation import URL as URL_
@@ -11,6 +11,11 @@ from textual.widgets import Select as _Select
 from textual.widgets._input import InputType as InputWidgetType
 
 EMAIL_REGEX = r"^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$"  # noqa: E501
+
+
+class ValidationResult:
+    valid: bool = True
+    failure_reason: str
 
 
 # Base class for all input types
@@ -40,6 +45,7 @@ class BaseText(InputType, Generic[FieldValueType]):
     input_type: InputWidgetType
     allow_blank: bool
     additional_validators: Optional[list[Validator]] = None
+    default_value: FieldValueType
 
     def __init__(
         self,
@@ -49,7 +55,8 @@ class BaseText(InputType, Generic[FieldValueType]):
         validators: Optional[list[Validator]] = None,
         placeholder: Optional[str] = None,
         initial_value: Optional[str] = None,
-        allow_blank: bool = True,
+        allow_blank: bool = False,
+        default_value: Optional[FieldValueType] = None,
     ) -> None:
         """
         Initializes an instance of this class.
@@ -62,6 +69,8 @@ class BaseText(InputType, Generic[FieldValueType]):
             placeholder: Placeholder for the text field.
             initial_value: Initial value entered in the input.
             allow_blank: Whether or not the text field is considered valid when is it empty.
+            default_value: The value returned by the input if allow_blank is
+                set to True and the input is empty.
         """
         super().__init__(name, label)
 
@@ -71,11 +80,12 @@ class BaseText(InputType, Generic[FieldValueType]):
             validators += self.additional_validators
 
         self.placeholder = placeholder or initial_value or ""
-
+        if default_value is not None:
+            self.default_value = default_value
         self.initial_value = initial_value or ""
 
         if not allow_blank:
-            validators.append(Length(1))
+            validators.append(Length(1, failure_description="You must provide a value."))
 
         self.validators = validators
         self.allow_blank = allow_blank
@@ -98,26 +108,38 @@ class BaseText(InputType, Generic[FieldValueType]):
         """
         while True:
             answer = inq.text(self.label, default=self.initial_value)
-            if not self.is_value_accepted(answer):
+            validation = self.is_value_accepted(answer)
+            if not validation.valid:
+                print(validation.failure_reason)
                 continue
             return self.parse_result(answer)
 
-    def is_value_accepted(self, value: str) -> bool:
+    def is_value_accepted(self, value: str) -> ValidationResult:
         """
         Determine if a value satisfies all the validators configured on the question.
 
         Args:
             value: The value your want to check the validity of.
         """
+        result = ValidationResult()
+        if self.allow_blank and len(value) == 0:
+            return result
         for validator in self.validators:
             validation = validator.validate(value)
             if not validation.is_valid:
-                print(validation.failure_descriptions[0])
-                return False
-        return True
+                result.failure_reason = validation.failure_descriptions[0]
+                result.valid = False
+                return result
+
+        return result
+
+    def parse_result(self, value: str) -> FieldValueType:
+        if len(value) == 0 and self.allow_blank:
+            return self.default_value
+        return self._parse_result(value)
 
     @abstractmethod
-    def parse_result(self, value: str) -> FieldValueType: ...
+    def _parse_result(self, value: str) -> FieldValueType: ...
 
 
 class Text(BaseText[str]):
@@ -126,8 +148,9 @@ class Text(BaseText[str]):
     """
 
     input_type: InputWidgetType = "text"
+    default_value: str = ""
 
-    def parse_result(self, value: str) -> str:
+    def _parse_result(self, value: str) -> str:
         return value
 
 
@@ -160,10 +183,11 @@ class Integer(BaseText[int]):
     Only entering digits will work, other keypresses will just be ignored.
     """
 
+    default_value: int = 0
     input_type: InputWidgetType = "integer"
     additional_validators = [IntegerValidator()]
 
-    def parse_result(self, value: str) -> int:
+    def _parse_result(self, value: str) -> int:
         return int(value)
 
 
@@ -173,10 +197,11 @@ class Number(BaseText[float]):
     Only entering digits and `.` will work, other keypresses will just be ignored.
     """
 
+    default_value: float = 0
     input_type: InputWidgetType = "number"
     additional_validators = [NumberValidator()]
 
-    def parse_result(self, value: str) -> float:
+    def _parse_result(self, value: str) -> float:
         return float(value)
 
 

@@ -3,6 +3,10 @@
 ### Added
 - Added `disable_tui` option to use Inquirer instead of the Terminal User Interface.
 - Added `is_value_accepted` method on question types.
+- Added `default_value` parameter on text-based inputs.
+
+### Fixed
+- Fixed inconsistent behaviour with the `allow_blank` parameter.
 
 # v0.3.0 - 2024-07-13
 
