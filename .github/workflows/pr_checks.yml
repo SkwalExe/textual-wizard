@@ -25,4 +25,6 @@ jobs:
         run: pdm run lint-check
       - name: Check for type errors
         run: pdm run check-types
+      - name: Run unit tests
+        run: pdm run tests
 
