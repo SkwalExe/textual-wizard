@@ -50,7 +50,7 @@ from textual_wizard import Wizard
 # Import the desired input types.
 # These are the only availble types for now, 
 # But we are planning on adding new ones soon!
-from textual_wizard.inputs import Integer, Number, Select, Text
+from textual_wizard.inputs import Integer, Number, Select, Text, RadioSet, SelectionList
 ```
 
 ### Defining your questions

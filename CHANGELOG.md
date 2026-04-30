@@ -1,3 +1,9 @@
+# v0.5.0 - 2026-04-30
+
+### Added
+- Added `RadioSet` input type
+- Added `SelectionList` input type
+
 # v0.4.4 - 2026-04-30
 
 - Updated dependencies
