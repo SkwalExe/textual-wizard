@@ -20,7 +20,7 @@ jobs:
         uses: pdm-project/setup-pdm@v4
       - name: Install dependencies
         run: pdm install
-      - run: zensical build --clean
+      - run: pdm run zensical build --clean
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site
