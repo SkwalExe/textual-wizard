@@ -63,7 +63,7 @@ plugins:
           docstring_section_style: spacy
 
           separate_signature: true
-          show_if_no_dicstring: true
+          show_if_no_docstring: true
           docstring_options:
             ignore_init_summary: true
 
