@@ -1,3 +1,7 @@
+# v0.4.4 - 2026-04-30
+
+- Updated dependencies
+
 # v0.4.3 - 2024-07-22
 
 ### Fixed

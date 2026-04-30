@@ -9,13 +9,14 @@ authors = [{name = "Leopold Koprivnik", email = "skwal@etik.com"}]
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "textual>=0.66.0",
     "rich>=13.7.1",
-    "click-extra>=4.8.3",
     "inquirer>=3.3.0",
     "pytest>=8.3.1",
+    "click-extra>=7.14.1",
+    "click>=8.3.1",
 ]
 dynamic = ["version"]
 
@@ -53,5 +54,5 @@ docs-build = "mkdocs build"
 tests = "pytest"
 
 [project.scripts]
-textual-wizard = "textual_wizard.__main__:main"
+textual-wizard = "textual_wizard.__main__:textual_wizard"
 

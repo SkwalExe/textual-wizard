@@ -1,6 +1,6 @@
 from typing import Any
 
-from click_extra import extra_command, option
+from click_extra import command, option
 from rich.console import Console
 from rich.panel import Panel
 from rich.pretty import pprint
@@ -11,11 +11,11 @@ from textual_wizard import Wizard
 from textual_wizard.inputs import URL, Email, Integer, Number, Select, Text
 
 
-@extra_command(params=[])
+@command(params=None, version_fields={"prog_name": "Textual Wizard"})
 @option(
     "-t", "--disable-tui", is_flag=True, help="Disable the Textual TUI and use Inquirer instead."
 )
-def main(disable_tui: bool) -> None:
+def textual_wizard(disable_tui: bool) -> None:
     ANIMALS = ["Cats 😺", "Dogs 🐶", "Monkeys 🐵", "Mice 🐭", "Hamsters 🐹", "Bunnies 🐰", "Other"]
 
     MY_QUESTIONS = [

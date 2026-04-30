@@ -4,14 +4,14 @@ This module will guide you through the process of installing Textual Wizard, and
 
 ## Requirements
 
-Textual Wizard requires **Python 3.9** or later.
+Textual Wizard requires **Python 3.10** or later.
 
 ## Installation
 
 You can install textual-wizard from PyPI using the following command:
 
 !!! warning
-    Ensure that Python>=3.9 is installed, or the installation will fail.
+    Ensure that Python>=3.10 is installed, or the installation will fail.
 
 ```bash
 pip install textual-wizard
