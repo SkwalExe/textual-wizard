@@ -6,8 +6,10 @@ from textual.validation import URL as URL_
 from textual.validation import Integer as IntegerValidator
 from textual.validation import Length, Regex, Validator
 from textual.validation import Number as NumberValidator
-from textual.widgets import Input
-from textual.widgets import Select as _Select
+from textual.widgets import Input, RadioButton
+from textual.widgets import RadioSet as RadioSet_
+from textual.widgets import Select as Select_
+from textual.widgets import SelectionList as SelectionList_
 from textual.widgets._input import InputType as InputWidgetType
 
 EMAIL_REGEX = r"^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$"  # noqa: E501
@@ -28,7 +30,7 @@ class InputType(ABC):
         self.label = label
 
     @abstractmethod
-    def as_widget(self) -> Input | _Select: ...
+    def as_widget(self) -> Input | Select_ | SelectionList_ | RadioSet_: ...
 
     @abstractmethod
     def inq_ask(self) -> ...: ...
@@ -209,14 +211,58 @@ class Number(BaseText[float]):
 # OptionList[T]: list[Option[T]]
 
 
+class SelectionList(InputType, Generic[FieldValueType]):
+    """
+    Allows the user to select multiple options within a predifined list, similar to a checklist.
+    """
+
+    options: list[tuple[str, FieldValueType, bool]]
+    wid: SelectionList_[FieldValueType]
+
+    def __init__(
+        self,
+        name: str,
+        label: str,
+        *,
+        options: list[tuple[str, FieldValueType, bool]],
+    ) -> None:
+        """
+        Initializes an instance of this class.
+
+        Args:
+            name: The input identifier, used as key in the returned `answers` dict.
+            label: The title of the input, displayed to the user.
+            options: A list of options that can be selected by the user.
+                An option is represented by the tuple (display string, value, selected by default?)
+        """
+        super().__init__(name, label)
+        self.options = options
+
+    def as_widget(self) -> SelectionList_:
+        wid = SelectionList_[FieldValueType](
+            *self.options,
+            id=self.name,
+        )
+
+        wid.border_title = self.label
+        return wid
+
+    def inq_ask(self) -> FieldValueType:
+        return inq.checkbox(
+            self.label,
+            choices=[(x[0], x[1]) for x in self.options],
+            default=[x[1] for x in self.options if x[2]],
+        )
+
+
 class Select(InputType, Generic[FieldValueType]):
     """
-    Allows the user to select a value within a predefined list of options.
+    Allows the user to select a value within a list of radio buttons
     """
 
     options: list[tuple[str, FieldValueType]]
     default_value: FieldValueType
-    wid: _Select[FieldValueType]
+    wid: Select_[FieldValueType]
 
     def __init__(
         self,
@@ -245,12 +291,63 @@ class Select(InputType, Generic[FieldValueType]):
             default_value = options[0][1]
         self.default_value = default_value
 
-    def as_widget(self) -> _Select:
-        wid = _Select[FieldValueType](
+    def as_widget(self) -> Select_:
+        wid = Select_[FieldValueType](
             id=self.name,
             options=self.options,
             allow_blank=False,
             value=self.default_value,
+        )
+
+        wid.border_title = self.label
+
+        return wid
+
+    def inq_ask(self) -> FieldValueType:
+        # We assume inq.list_input will return a good type
+        return inq.list_input(self.label, choices=self.options, default=self.default_value)  # type: ignore
+
+
+class RadioSet(InputType, Generic[FieldValueType]):
+    """
+    Allows the user to select a value within a predefined list of options.
+    """
+
+    options: list[str]
+    default_value: str
+    wid: RadioSet_
+
+    def __init__(
+        self,
+        name: str,
+        label: str,
+        *,
+        options: list[str],
+        default_value: Optional[str] = None,
+    ) -> None:
+        """
+        Initializes an instance of this class.
+
+        Args:
+            name: The input identifier, used as key in the returned `answers` dict.
+            label: The title of the input, displayed to the user.
+            options: A list of options that can be selected by the user.
+                An option is represented by a string.
+            default_value: The default value of the input (str).
+        """
+        super().__init__(name, label)
+
+        self.options = options
+
+        if default_value is None:
+            default_value = options[0][1]
+        self.default_value = default_value
+
+    def as_widget(self) -> RadioSet_:
+        buttons = [RadioButton(x, x == self.default_value) for x in self.options]
+        wid = RadioSet_(
+            id=self.name,
+            *buttons,
         )
 
         wid.border_title = self.label

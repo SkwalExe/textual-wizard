@@ -1,3 +1,4 @@
+from random import random
 from typing import Any
 
 from click_extra import command, option
@@ -8,7 +9,7 @@ from rich.text import Text as RichText
 from textual.validation import Number as Nb
 
 from textual_wizard import Wizard
-from textual_wizard.inputs import URL, Email, Integer, Number, Select, Text
+from textual_wizard.inputs import URL, Email, Integer, Number, RadioSet, Select, SelectionList, Text
 
 
 @command(params=None, version_fields={"prog_name": "Textual Wizard"})
@@ -21,8 +22,8 @@ def textual_wizard(disable_tui: bool) -> None:
     MY_QUESTIONS = [
         Text(
             "my_text_field",
-            "This is a text input field!",
-            placeholder="And this is a placeholder!",
+            "Please type in any text!",
+            placeholder="(This is a placeholder!!)",
             allow_blank=True,
         ),
         Select(
@@ -33,7 +34,7 @@ def textual_wizard(disable_tui: bool) -> None:
         Integer(
             "my_integer",
             "This is an integer input field!",
-            placeholder="Pl4c3h0ld3r",
+            placeholder="1337",
             allow_blank=True,
         ),
         URL("url", "URL input field!", placeholder="https://skwal.net", allow_blank=True),
@@ -44,6 +45,16 @@ def textual_wizard(disable_tui: bool) -> None:
             placeholder="This is a placeholder.",
             validators=[Nb(5, 10)],
             allow_blank=True,
+        ),
+        SelectionList(
+            "selection_list",
+            "What animals did you see in the last month ?",
+            options=[(x, x, random() < 0.3) for x in ANIMALS],
+        ),
+        RadioSet(
+            "radio_set",
+            "Select a friend.",
+            options=ANIMALS,
         ),
     ]
     answers: dict[str, Any] | None = dict()

@@ -4,12 +4,14 @@ from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal
 from textual.reactive import reactive
-from textual.widgets import Button, Header, Input, Label
-from textual.widgets import Select as _Select
+from textual.widgets import Button, Header, Input, Label, RadioButton
+from textual.widgets import RadioSet as RadioSet_
+from textual.widgets import Select as Select_
+from textual.widgets import SelectionList as SelectionList_
 from textual.widgets._select import NoSelection
 
 from textual_wizard.exceptions import QuestionNameNotUnique
-from textual_wizard.inputs import BaseText, InputType, Select, ValidationResult
+from textual_wizard.inputs import BaseText, InputType, ValidationResult
 
 
 class WizardApp(App[dict[str, Any]]):
@@ -90,11 +92,11 @@ class WizardApp(App[dict[str, Any]]):
     question_index: int = 0
     """Index of the current question within self.questions"""
 
-    input_widgets: list[Input | _Select]
+    input_widgets: list[Input | Select_ | SelectionList_ | RadioSet_]
     """List of all the input widgets, matching the index of items in self.questions"""
 
     @property
-    def active_input(self) -> Input | _Select:
+    def active_input(self) -> Input | Select_ | SelectionList_ | RadioSet_:
         return self.input_widgets[self.question_index]
 
     @property
@@ -112,15 +114,22 @@ class WizardApp(App[dict[str, Any]]):
 
         # Register the value of the input when navigating to the next question
         if question_index >= self.question_index:
-            value = None
-            if isinstance(self.selected_question, Select):
+            value: Any = None
+            if isinstance(self.active_input, Select_):
                 value = self.active_input.value
                 if isinstance(value, NoSelection):
                     value = None
+            elif isinstance(self.active_input, SelectionList_):
+                value = self.active_input.selected
+            elif (
+                isinstance(self.active_input, RadioSet_) and self.active_input._selected is not None
+            ):
+                value = str(self.active_input.query(RadioButton)[self.active_input._selected].label)
             elif isinstance(self.selected_question, BaseText) and isinstance(
                 self.active_input, Input
             ):
                 value = self.selected_question.parse_result(self.active_input.value)
+
             self.answers[self.selected_question.name] = value
 
         # If the user clicked next on the last question, return the answers

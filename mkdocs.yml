@@ -87,5 +87,7 @@ nav:
         - "reference/integer.md"
         - "reference/number.md"
         - "reference/select.md"
+        - "reference/selection-list.md"
+        - "reference/radio-set.md"
         - "reference/email.md"
         - "reference/url.md"
