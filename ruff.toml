@@ -10,6 +10,3 @@ line-length = 100
 # Pylint - PLC, PLE, PLW
 # isort - I
 select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'SIM', 'ANN']
-ignore = [
-    'ANN101'
-]

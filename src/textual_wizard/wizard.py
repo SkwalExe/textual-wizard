@@ -48,7 +48,7 @@ class WizardApp(App[dict[str, Any]]):
             # Show the error label and update it's content
             self.active_input.add_class("invalid")
             self.error_label.remove_class("hidden")
-            self.error_label.renderable = self.error_text
+            self.error_label.update(self.error_text)
             self.next_button.disabled = True
 
     def on_input_changed(self, message: Input.Changed) -> None:
