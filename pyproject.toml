@@ -35,8 +35,8 @@ dev = [
     "ruff>=0.4.7",
     "pyright>=1.1.365",
     "textual-dev>=1.5.1",
-    "mkdocs-material>=9.5.27",
     "mkdocstrings-python>=1.10.5",
+    "zensical>=0.0.38",
     # Black is used only for signature formatting with mkdocstrings
     "black>=24.4.2",
 ]
@@ -49,8 +49,8 @@ lint-check = "ruff check"
 check-types = "pyright"
 example = "textual run --dev -c textual-wizard"
 console = "textual console -x EVENT -x SYSTEM"
-docs-serve = "mkdocs serve"
-docs-build = "mkdocs build"
+docs-serve = "zensical serve"
+docs-build = "zensical build"
 tests = "pytest"
 
 [project.scripts]
