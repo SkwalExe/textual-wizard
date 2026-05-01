@@ -1,3 +1,8 @@
+# v0.6.0 - 2026-05-01
+
+### Added
+- Option to render all questions on a single page
+
 # v0.5.0 - 2026-04-30
 
 ### Added
