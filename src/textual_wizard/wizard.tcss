@@ -19,12 +19,20 @@ Container {
     height: auto;
 }
 
-Input, Select { 
-    border: round skyblue;
+.input { 
+    border: round gray;
     background: transparent;
 }
 
-.invalid {
+.input:focus {
+    border: round skyblue;
+}
+
+#label-step {
+    margin-bottom: 1
+}
+
+.input.invalid {
     border: round tomato;
 }
 
@@ -32,7 +40,7 @@ Input, Select {
     width: 1fr;
 }
 
-#error-label { 
+.error-label { 
     color: tomato;
     max-width: 100%;
 }

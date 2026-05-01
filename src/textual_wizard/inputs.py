@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, TypeVar
+from typing import Generic, Optional, Sequence, TypeVar
 
 import inquirer as inq
 from textual.validation import URL as URL_
@@ -30,7 +30,7 @@ class InputType(ABC):
         self.label = label
 
     @abstractmethod
-    def as_widget(self) -> Input | Select_ | SelectionList_ | RadioSet_: ...
+    def as_widget(self, qid: str) -> Input | Select_ | SelectionList_ | RadioSet_: ...
 
     @abstractmethod
     def inq_ask(self) -> ...: ...
@@ -92,16 +92,14 @@ class BaseText(InputType, Generic[FieldValueType]):
         self.validators = validators
         self.allow_blank = allow_blank
 
-    def as_widget(self) -> Input:
+    def as_widget(self, qid: str) -> Input:
         """Returns a Textual input widget with the corresponding information"""
         wid = Input(
-            id=self.name,
-            placeholder=self.placeholder,
-            validators=self.validators,
-            type=self.input_type,
+            placeholder=self.placeholder, validators=self.validators, type=self.input_type, id=qid
         )
         wid.border_title = self.label
         wid.value = self.initial_value
+
         return wid
 
     def inq_ask(self) -> FieldValueType:
@@ -126,6 +124,12 @@ class BaseText(InputType, Generic[FieldValueType]):
         result = ValidationResult()
         if self.allow_blank and len(value) == 0:
             return result
+
+        if not self.allow_blank and len(value) == 0:
+            result.failure_reason = "This input cannot be left empty."
+            result.valid = False
+            return result
+
         for validator in self.validators:
             validation = validator.validate(value)
             if not validation.is_valid:
@@ -224,7 +228,7 @@ class SelectionList(InputType, Generic[FieldValueType]):
         name: str,
         label: str,
         *,
-        options: list[tuple[str, FieldValueType, bool]],
+        options: Sequence[tuple[str, FieldValueType, bool] | tuple[FieldValueType, bool]],
     ) -> None:
         """
         Initializes an instance of this class.
@@ -233,15 +237,28 @@ class SelectionList(InputType, Generic[FieldValueType]):
             name: The input identifier, used as key in the returned `answers` dict.
             label: The title of the input, displayed to the user.
             options: A list of options that can be selected by the user.
-                An option is represented by the tuple (display string, value, selected by default?)
+                An option can be represented:
+                - by a tuple ("display string", actual_value, is_selected)
+                - or the "display string" can be omitted and the value will be converted to a string
         """
         super().__init__(name, label)
-        self.options = options
 
-    def as_widget(self) -> SelectionList_:
+        # convert simplified options into 3-sized tuples.
+        options_ = list()
+        for option in options:
+            if len(option) == 2:
+                options_ += [(str(option[0]), option[0], option[1])]
+            elif len(option) == 3:
+                options_ += [option]
+            else:
+                raise Exception("A SelectionList option should be a tuple of 2 or 3 elements.")
+
+        self.options = options_
+
+    def as_widget(self, qid: str) -> SelectionList_:
         wid = SelectionList_[FieldValueType](
             *self.options,
-            id=self.name,
+            id=qid,
         )
 
         wid.border_title = self.label
@@ -269,7 +286,7 @@ class Select(InputType, Generic[FieldValueType]):
         name: str,
         label: str,
         *,
-        options: list[tuple[str, FieldValueType]],
+        options: Sequence[tuple[str, FieldValueType] | FieldValueType],
         default_value: Optional[FieldValueType] = None,
     ) -> None:
         """
@@ -279,21 +296,32 @@ class Select(InputType, Generic[FieldValueType]):
             name: The input identifier, used as key in the returned `answers` dict.
             label: The title of the input, displayed to the user.
             options: A list of options that can be selected by the user.
+                An option can be represented by:
+                - any value that can be converted to a string
+                - a tuple ("displayed text", actual_value)
             default_value: The default value of the input.
-                You must specify an element by its __return value__
-                (the second thingy in the option tuple).
+                You must identify the default element by its actual value,
+                (the second part of the tuple).
         """
         super().__init__(name, label)
 
-        self.options = options
+        # Convert simplified options to ("displayed text", actual_value)
+        options_ = list()
+        for option in options:
+            if isinstance(option, tuple):
+                options_ += [option]
+            else:
+                options_ += [(str(option), option)]
+        self.options = options_
 
         if default_value is None:
-            default_value = options[0][1]
+            default_value = self.options[0][1]
+
         self.default_value = default_value
 
-    def as_widget(self) -> Select_:
+    def as_widget(self, qid: str) -> Select_:
         wid = Select_[FieldValueType](
-            id=self.name,
+            id=qid,
             options=self.options,
             allow_blank=False,
             value=self.default_value,
@@ -308,7 +336,7 @@ class Select(InputType, Generic[FieldValueType]):
         return inq.list_input(self.label, choices=self.options, default=self.default_value)  # type: ignore
 
 
-class RadioSet(InputType, Generic[FieldValueType]):
+class RadioSet(InputType):
     """
     Allows the user to select a value within a predefined list of options.
     """
@@ -340,13 +368,13 @@ class RadioSet(InputType, Generic[FieldValueType]):
         self.options = options
 
         if default_value is None:
-            default_value = options[0][1]
+            default_value = options[0]
         self.default_value = default_value
 
-    def as_widget(self) -> RadioSet_:
+    def as_widget(self, qid: str) -> RadioSet_:
         buttons = [RadioButton(x, x == self.default_value) for x in self.options]
         wid = RadioSet_(
-            id=self.name,
+            id=qid,
             *buttons,
         )
 
@@ -354,6 +382,6 @@ class RadioSet(InputType, Generic[FieldValueType]):
 
         return wid
 
-    def inq_ask(self) -> FieldValueType:
+    def inq_ask(self) -> list[str]:
         # We assume inq.list_input will return a good type
         return inq.list_input(self.label, choices=self.options, default=self.default_value)  # type: ignore

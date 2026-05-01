@@ -2,34 +2,55 @@
 
 ## TL;DR
 
-If you want to get started quickly, check out this script. It covers the basics but doesn't demonstrate all the features of the library. For a comprehensive understanding, read through the entire section. To discover all the available features, take a look at the other documentation modules.
+If you want to get started quickly, check out this script. It covers the basics but doesn't demonstrate all the available features. For a comprehensive understanding, read through the entire section. To discover all the available features, take a look at the other documentation pages.
 
 ```python
 # We import the main class
 from textual_wizard import Wizard
 
 # We import the input types we want
-from textual_wizard.inputs import Integer, Number, Select, Text
+from textual_wizard.inputs import URL, Email, Integer, RadioSet, Select, Text
+
+ANIMALS = ["Cats 😺", "Dogs 🐶", "Monkeys 🐵", "Mice 🐭", "Hamsters 🐹", "Bunnies 🐰", "Other"]
+DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 # We define our questions in a list
 MY_QUESTIONS = [
-    Text("name", "What is your name?", placeholder="John Doe", allow_blank=False),
-    Select(
-        "animal",
-        "What is your favourite animal?",
-        options=[
-            ("I love dogs 🐶", "dog"),
-            ("I love cats 😺", "cat"),
-            ("Something else...", "other"),
-        ],
+    Text(
+        # the first argument will be used as a dictionnary key in the answers dict.
+        "name",
+        "What is your name ?",
+        placeholder="John Doe",
+        allow_blank=False,
     ),
-    Integer("pet_count", "How many pets do you have?"),
-    Number("height", "How tall are you (in meters)", placeholder="1.70"),
+    Select(
+        "favorite_animal",
+        "What are your favorite animals ?",
+        options=ANIMALS,
+    ),
+    Integer(
+        "favorite_number",
+        "What is your favorite number ?",
+        placeholder="1337",
+        allow_blank=True,
+    ),
+    URL(
+        "github_url",
+        "What is the URL of your Github ?",
+        placeholder="https://github.com/SkwalExe",
+        allow_blank=True,
+    ),
+    Email("email", "What is your email ?", placeholder="me@domain.com", allow_blank=True),
+    RadioSet(
+        "radio_set",
+        "What day of the week were you born ?",
+        options=DAYS,
+    ),
 ]
 
-# We create the wizard and run it,
-# getting the user's inputs in the answers dict
+# We create the wizard
 wiz = Wizard(MY_QUESTIONS, "MyApp", "Hello")
+# and we run it, getting the user's inputs in the answers dict
 answers = wiz.run()
 
 print(f"Your name is {answers['name']}.")
@@ -44,13 +65,12 @@ This section will guide you through creating a simple Wizard application in less
 First, import the necessary modules based on the features you need.
 
 ```python
-# Import the main class (REQUIRED)
+# Import the main class
 from textual_wizard import Wizard
 
 # Import the desired input types.
-# These are the only availble types for now, 
-# But we are planning on adding new ones soon!
-from textual_wizard.inputs import Integer, Number, Select, Text, RadioSet, SelectionList
+# These aren't only availble types !
+from textual_wizard.inputs import Integer, Text
 ```
 
 ### Defining your questions
@@ -60,7 +80,7 @@ To define the questions asked by your application, you must create a list contai
 ```python
 MY_QUESTIONS = [
     Text("name", "What's your name?", placeholder="John Doe"),
-    Integer("pet_count", "How many pets do you have?"),
+    Integer("finger_count", "How many fingers do you have?"),
 ]
 ```
 

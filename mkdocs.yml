@@ -63,7 +63,7 @@ plugins:
           docstring_section_style: spacy
 
           separate_signature: true
-          show_if_no_docstring: true
+          show_if_no_docstring: false
           docstring_options:
             ignore_init_summary: true
 
@@ -80,6 +80,8 @@ nav:
   - Getting Started:
     - "getting-started/index.md"
     - "getting-started/basic-app.md"
+    - "getting-started/single-page-mode.md"
+    - "getting-started/no-tui-mode.md"
   - Reference:
       - "reference/wizard.md"
       - Inputs:
@@ -91,3 +93,5 @@ nav:
         - "reference/radio-set.md"
         - "reference/email.md"
         - "reference/url.md"
+  - "Contributing 🫂":
+      - "contributing/index.md"

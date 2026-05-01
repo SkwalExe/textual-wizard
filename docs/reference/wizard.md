@@ -10,7 +10,9 @@ The usage is very straightforward, considering that you can create and run your 
 my_wizard = Wizard(
     questions=[Text(...), Integer(...), Number(...), Select(...)],
     title="MyAwesomeApplication",
-    sub_title="Account creation"
+    sub_title="Account creation",
+    disable_tui=False,
+    single_page=False
 )
 ```
 
