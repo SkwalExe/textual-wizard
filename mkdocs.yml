@@ -82,6 +82,7 @@ nav:
     - "getting-started/basic-app.md"
     - "getting-started/single-page-mode.md"
     - "getting-started/no-tui-mode.md"
+    - "getting-started/multi-stage.md"
   - Reference:
       - "reference/wizard.md"
       - Inputs:

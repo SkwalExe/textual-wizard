@@ -1,3 +1,8 @@
+# v0.7.0 - 2026-05-02
+
+### Added
+- Multistage wizards
+
 # v0.6.0 - 2026-05-01
 
 ### Added

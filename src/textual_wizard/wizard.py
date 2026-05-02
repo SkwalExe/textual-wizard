@@ -1,4 +1,4 @@
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, ReadOnly, Sequence, TypedDict
 
 from textual import on
 from textual.app import App, ComposeResult
@@ -25,6 +25,18 @@ class WizardApp(App[dict[str, Any]]):
     single_page: bool
     """Show all the questions on a single page"""
 
+    allow_back: bool = False
+    """
+    Allow the user to click the previous button while on the first question,
+    which will return None, and set go_back.
+    """
+
+    go_back: bool
+    """
+    True if back button was clicked while on the first question.
+    Used to go back to the previous stage.
+    """
+
     CSS_PATH = "wizard.tcss"
 
     # -------------------- Validation error handling
@@ -41,11 +53,12 @@ class WizardApp(App[dict[str, Any]]):
     def set_error(self, error: str | None, index: int) -> None:
         """Set the input error text for the current input widget"""
         self.error_texts[index] = error
-        self.mutate_reactive(WizardApp.error_texts)
+        self.error_texts_updated()
 
-    def watch_error_texts(self) -> None:
+    def error_texts_updated(self) -> None:
         """Update the error labels on the screen when an element inside error_labels changes."""
         next_button_disabled = False
+
         for i, error_text in enumerate(self.error_texts):
             if error_text is None:
                 # If there is no error, hide the error label,
@@ -63,7 +76,6 @@ class WizardApp(App[dict[str, Any]]):
 
     def on_input_changed(self, message: Input.Changed) -> None:
         """Validate the input at every change"""
-        # TODO
         qid = self.get_question_id(message.input)
         if qid is None:
             raise Exception("Encountered an input widget with id None")
@@ -187,8 +199,8 @@ class WizardApp(App[dict[str, Any]]):
         self.active_input.remove_class("hidden")
         self.active_input.focus()
 
-        # Enable the back button if this is not the first question
-        self.back_button.disabled = self.question_index == 0
+        # Enable the back button if this is not the first question, or if allow_back is enabled
+        self.back_button.disabled = (self.question_index == 0) and (not self.allow_back)
 
     @on(Button.Pressed, "#next-button")
     def next_button_pressed(self) -> None:
@@ -211,8 +223,10 @@ class WizardApp(App[dict[str, Any]]):
 
     @on(Button.Pressed, "#back-button")
     def back_button_pressed(self) -> None:
-        if self.single_page:
-            raise Exception("The back button should not be enabled for now in single page mode")
+        if self.allow_back and (self.single_page or self.question_index == 0):
+            self.go_back = True
+            self.exit(None)
+            return
 
         self.previous_question()
 
@@ -242,8 +256,11 @@ class WizardApp(App[dict[str, Any]]):
         # We need to define class properties that are references here to
         # avoid keeping previous objects when creating a new wizard.
         self.answers = dict()
+        self.go_back = False
         self.input_widgets = list()
-        self.back_button = Button("Back", id="back-button", variant="warning", disabled=True)
+        self.back_button = Button(
+            "Back", id="back-button", variant="warning", disabled=(not self.allow_back)
+        )
         self.next_button = Button("Next", id="next-button", variant="primary")
         self.error_labels = list()
         self.error_texts = list()
@@ -292,13 +309,11 @@ class Wizard:
     questions: Sequence[InputType]
     wiz_app: WizardApp
     disable_tui: bool
-
-    # True if the wizard was run at least once
-    finished: bool = False
+    title: str
+    sub_title: Optional[str]
 
     def __init__(
         self,
-        questions: Sequence[InputType],
         title: str = "Wizard",
         sub_title: Optional[str] = None,
         *,
@@ -317,28 +332,26 @@ class Wizard:
             disable_tui: Disable the Textual User Interface and use Inquirer instead.
             single_page: Show all the questions on the same page.
         """
-        self.wiz_app = WizardApp()
-
-        self.questions = questions
         self.wiz_app.single_page = single_page
-        self.wiz_app.title = title
         self.disable_tui = disable_tui
-        if sub_title is not None:
-            self.wiz_app.sub_title = sub_title
+        self.title = title
+        self.sub_title = sub_title
 
-    def run(self) -> dict[str, Any] | None:
+    def run(
+        self,
+        questions: Sequence[InputType],
+    ) -> dict[str, Any] | None:
         """Run the app and return answers. Return None if the wizard was cancelled."""
 
-        if self.finished:
-            raise Exception(
-                "You can only can Wizard.run() one time. "
-                "If you want to run another wizard, "
-                "create a new instance of textual_wizard.Wizard()."
-            )
-        self.finished = True
+        self.questions = questions
 
         # If we run with the TUI
         if not self.disable_tui:
+            self.wiz_app = WizardApp()
+            self.wiz_app.title = self.title
+            if self.sub_title is not None:
+                self.wiz_app.sub_title = self.sub_title
+
             self.wiz_app.set_questions(self.questions)
             return self.wiz_app.run()
 
@@ -346,5 +359,91 @@ class Wizard:
         answers = dict()
         for question in self.questions:
             answers[question.name] = question.inq_ask()
+
+        return answers
+
+
+class WizardStage(TypedDict):
+    title: ReadOnly[str]
+    questions: ReadOnly[Sequence[InputType]]
+
+
+Stages = Sequence[WizardStage]
+
+
+class MultiStageWizard:
+    """
+    This class allows you to create more complex wizards, with multiple stages.
+    """
+
+    disable_tui: bool
+    single_page: bool
+    title: str
+
+    def __init__(
+        self,
+        title: str = "Wizard",
+        *,
+        disable_tui: bool = False,
+        single_page: bool = True,
+    ) -> None:
+        """
+        Creates an instance of this class.
+
+        TODO::
+        Args:
+            title: The name of your wizard.
+                Should be something like the name of your application,
+                it will be displayed to the user.
+            disable_tui: Disable the Textual User Interface and use Inquirer instead.
+            single_page: Show all the questions on the same page.
+        """
+
+        self.disable_tui = disable_tui
+        self.single_page = single_page
+        self.title = title
+
+    def run(self, stages: Sequence[WizardStage]) -> dict[str, Any] | None:
+        """
+        Run the multistage wizard and return answers. Return None if the wizard was cancelled.
+
+        Args:
+            stages: A list containing the different stages of your wizard.
+                A stage is a dictionnary with the following keys:
+                - questions: an array of questions
+                - title: the title of your stage
+        """
+
+        # If we run with the TUI
+        if not self.disable_tui:
+            answers = dict()
+            stage_i = 0
+            while stage_i < len(stages):
+                stage = stages[stage_i]
+                wiz = WizardApp()
+                wiz.single_page = self.single_page
+                wiz.title = self.title
+                wiz.set_questions(stage["questions"])
+                wiz.sub_title = stage["title"]
+                if stage_i > 0:
+                    wiz.allow_back = True
+
+                stage_answers = wiz.run()
+                if stage_answers is None:
+                    if wiz.go_back:
+                        stage_i -= 1
+                        continue
+                    return None
+                stage_i += 1
+                answers.update(stage_answers)
+
+            return answers
+
+        # Without the TUI
+        answers = dict()
+        for stage in stages:
+            print(stage["title"])
+            for question in stage["questions"]:
+                answers[question.name] = question.inq_ask()
 
         return answers
